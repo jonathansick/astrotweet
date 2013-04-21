@@ -25,4 +25,9 @@ Commands
 About
 -----
 
+Commands
+--------
+
+`astrotweet list` -- will output a list of twitter usernames scraped from the Wiki.
+
 This is a Jonathan Sick project. Tweet: @jonathansick
