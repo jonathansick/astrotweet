@@ -8,10 +8,9 @@ import twitter
 from cliff.command import Command
 
 
-class ListHandles(Command):
-    """Show a list of files in the current directory.
-
-    The file name and size are printed by default.
+class SummaryTable(Command):
+    """Command to write a summary table of astro tweeters from the AstroBetter
+    list to astrotweeters.csv.
     """
 
     log = logging.getLogger(__name__)

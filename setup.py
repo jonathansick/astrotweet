@@ -52,7 +52,7 @@ setup(
             'astrotweet = astrotweet.main:main'
             ],
         'astrotweet.commands': [
-            'list = astrotweet.list:ListHandles',
+            'summary = astrotweet.summary:SummaryTable',
             ],
         },
 
