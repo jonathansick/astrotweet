@@ -8,6 +8,15 @@ Interface to the twitter API for looking up user data.
 
 import time
 import twitter
+import datetime
+
+
+def str_to_datetime(createdAt):
+    """Convert a twitter timestamp (often a ``created_at`` field) to a datetime.
+    
+    See: http://stackoverflow.com/a/8825799
+    """
+    return datetime.datetime.strptime(createdAt, '%a %b %d %H:%M:%S +0000 %Y')
 
 
 def lookup_users(usernames):
