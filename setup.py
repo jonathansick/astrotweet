@@ -41,7 +41,7 @@ setup(
     scripts=[],
 
     provides=[],
-    install_requires=['distribute', 'cliff', 'twitter', 'requests'],
+    install_requires=['distribute', 'cliff', 'twitter', 'requests', 'pymongo'],
 
     namespace_packages=[],
     packages=find_packages(),
@@ -53,6 +53,7 @@ setup(
             ],
         'astrotweet.commands': [
             'summary = astrotweet.summary:SummaryTable',
+            'build = astrotweet.mongobuild:MongoBuilder',
             ],
         },
 
