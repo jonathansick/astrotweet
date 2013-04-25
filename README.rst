@@ -21,6 +21,25 @@ To check your installation run::
     astrotweet --help
 
 
+Getting Twitter Credientials
+----------------------------
+
+``astrotweet`` uses Twitter's v1.1 API.
+This means that you need to get a set of application credientials to run the code.
+It's easy:
+
+1. `Register the application. <https://dev.twitter.com/apps/new/>`_ Make up an application name, description, etc.. Don't share the consumer key or secret with anyone.
+2. Go ahead an press the button to create your OAuth access token. Again, don't share this publicly.
+3. Store the credentials into a file at ``$HOME/.astrotweet.json``; the format is::
+
+    {
+        "consumer_key": "your_consumer_key,
+        "consumer_secret": "your_consumer_secret",
+        "oauth_token": "your_access_token",
+        "oauth_token_secret": "your_access_token_secret"
+    }
+
+
 Commands
 --------
 

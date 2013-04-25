@@ -9,21 +9,49 @@ Interface to the twitter API for looking up user data.
 import time
 import twitter
 import datetime
+import json
+import os
 
 
-def str_to_datetime(createdAt):
-    """Convert a twitter timestamp (often a ``created_at`` field) to a datetime.
+def read_credentials():
+    """Read the app's consumer key and oauth tokens from ~/.astrotweet.json
     
-    See: http://stackoverflow.com/a/8825799
+    Credentials can be obtained from https://dev.twitter.com/apps/new/
+    The format of this JSON document should be::
+
+        {
+            "consumer_key": "your_consumer_key,
+            "consumer_secret": "your_consumer_secret",
+            "oauth_token": "your_access_token",
+            "oauth_token_secret": "your_access_token_secret"
+        }
+    
     """
-    return datetime.datetime.strptime(createdAt, '%a %b %d %H:%M:%S +0000 %Y')
+    path = os.path.expanduser("~/.astrotweet.json")
+    f = open(path, 'r')
+    creds = json.load(f)
+    f.close()
+    return creds
+
+
+def connect():
+    """Create a twitter instance, connected to v1.1 of the API with OAuth
+    authentication.
+    """
+    c = read_credentials()
+    auth = twitter.oauth.OAuth(c['oauth_token'], c['oauth_token_secret'],
+                               c['consumer_key'], c['consumer_secret'])
+    t = twitter.Twitter(domain='api.twitter.com',
+        api_version='1.1',
+        auth=auth)
+    return t
 
 
 def lookup_users(usernames):
     """Given a list of twitter usernames, returns a dictionary of twitter
     user profiles."""
     users = {}
-    t = twitter.Twitter(domain='api.twitter.com', api_version='1')
+    t = connect()
     for usrBatch in chunks(usernames, 100):
         usrBatch = list(usrBatch)
         dataBatch = _lookup_user_batch(t, usrBatch)
@@ -66,9 +94,25 @@ def _lookup_user_batch(t, usrBatch):
     return userData
 
 
+def str_to_datetime(createdAt):
+    """Convert a twitter timestamp (often a ``created_at`` field) to a datetime.
+    
+    See: http://stackoverflow.com/a/8825799
+    """
+    return datetime.datetime.strptime(createdAt, '%a %b %d %H:%M:%S +0000 %Y')
+
+
+
+
 def chunks(l, n):
     """ Yield successive n-sized chunks from l.
     via http://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks-in-python
     """
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
+
+if __name__ == '__main__':
+    # creds = read_credentials()
+    # print creds
+    print connect()
