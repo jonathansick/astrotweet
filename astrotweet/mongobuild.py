@@ -13,7 +13,8 @@ from pymongo import MongoClient
 from cliff.command import Command
 
 from wikireader import get_handles
-from twitter_utils import lookup_users, str_to_datetime
+from twitter_utils import lookup_users, str_to_datetime, get_friends_ids, \
+        get_follower_ids
 
 
 class MongoBuilder(Command):
@@ -31,6 +32,12 @@ class MongoBuilder(Command):
             "--dbname", action='store', default='astrotweet')
         parser.add_argument(
             "--cname", action='store', default='users')
+        parser.add_argument(
+            "--followers", action='store_true', default=False,
+            help="Add follower_ids field for each user.")
+        parser.add_argument(
+            "--friends", action='store_true', default=False,
+            help='Add friend_ids field for each user.')
         return parser
 
     def take_action(self, parsedArgs):
@@ -41,9 +48,16 @@ class MongoBuilder(Command):
         if len(newHandles) == 0:
             self.log.info("No new users to add")
         else:
+            self.log.info("Looking up users:")
+            self.log.info(newHandles)
             userData = lookup_users(newHandles)
             for screenName, userDict in userData.iteritems():
                 self._insert_user(userDict)
+
+        if parsedArgs.followers:
+            self._add_followers()
+        if parsedArgs.friends:
+            self._add_friends()
 
     def _get_new_handles(self):
         """Get user handles from the AstroBetter wiki that are not yet in
@@ -78,3 +92,25 @@ class MongoBuilder(Command):
         self.log.debug(doc)
         self.log.info("Inserting %s" % doc['screen_name'])
         self.c.save(doc)
+
+    def _add_followers(self):
+        """Add follower lists for each user."""
+        q = {"follower_ids": {"$exists": 0}}
+        cursor = self.c.find(q, fields=["screen_name"])
+        screenNames = [doc['screen_name'] for doc in cursor]
+        for screenName in screenNames:
+            followerIDs = get_follower_ids(screenName=screenName)
+            doc = {"$set": {"follower_ids": followerIDs}}
+            self.c.update({"screen_name": screenName}, doc)
+            self.log.info("Inserting follower_ids for %s" % screenName)
+
+    def _add_friends(self):
+        """Add friend lists for each user."""
+        q = {"friend_ids": {"$exists": 0}}
+        cursor = self.c.find(q, fields=["screen_name"])
+        screenNames = [doc['screen_name'] for doc in cursor]
+        for screenName in screenNames:
+            followerIDs = get_follower_ids(screenName=screenName)
+            doc = {"$set": {"friend_ids": followerIDs}}
+            self.c.update({"screen_name": screenName}, doc)
+            self.log.info("Inserting friend_ids for %s" % screenName)

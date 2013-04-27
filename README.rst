@@ -47,7 +47,9 @@ Commands
 Here are the commands currently included in ``astrotweet``:
 
 - ``astrotweet summary`` - will output a summary table (tab-separated) of astrotweeters to the file ``astrotweeters.csv``. Columns include 'real' name, follower counts, etc..
-- ``astrotweet build`` - will build a MongoDB collection of user data (see schema below).
+- ``astrotweet build`` - will build a MongoDB collection of user data (see schema below). Add in the ``--followers`` and ``--friends`` flags to also grab friend and follower lists. Note that this will take a while because of Twitter's rate limits.
+
+You can get a overview of ``astrotweet``'s commands by running ``astrotweet --help``, and using the ``astrotweet help cmd_name`` for help specific to each command (e.g., ``astrotweet help build``).
 
 
 Schema of user documents in MongoDB
@@ -57,7 +59,7 @@ The ``astrotweet build`` command loads user data into an ``astrotweet.users`` co
 The schema for these documents is:
 
 - ``_id``: twitter user ID, as a string. Also the formal document ID.
-- ``screen_name``: user's twitter handle, without the '@'. Ie, I'm ``jonathansick``.
+- ``screen_name``: user's twitter handle, without the '@'. I.e., I'm ``jonathansick``.
 - ``id``: twitter user ID, as an integer
 - ``description``: description, written by the user
 - ``profile_image_url``: URL of user's twitter avatar (jpg image)
@@ -70,6 +72,8 @@ The schema for these documents is:
 - ``created_at``: datetime when user created account
 - ``updated_at``: datetime when user's data was added to MongoDB
 - ``listed_count``: number of twitter lists this user appears in
+- ``friend_ids``: list of ``str_id`` of people this user is follower. Built with ``astrotweet build --friends`` flag.
+- ``follower_ids``: list of ``str_id`` of people following this user. Built with ``astrotweet build --followers`` flag.
 
 
 Running MongoDB
@@ -89,4 +93,4 @@ You can later kill the ``mongod`` process to safely shutdown the DB server.
 About
 -----
 
-This is hack by Jonathan Sick. Tweet: @jonathansick
+This an experiment by Jonathan Sick. Tweet: @jonathansick
