@@ -29,7 +29,7 @@ This means that you need to get a set of application credientials to run the cod
 It's easy:
 
 1. `Register the application. <https://dev.twitter.com/apps/new/>`_ Make up an application name, description, etc.. Don't share the consumer key or secret with anyone.
-2. Go ahead an press the button to create your OAuth access token. Again, don't share this publicly.
+2. Go ahead and press the button to create your OAuth access token. Again, don't share this publicly.
 3. Store the credentials into a file at ``$HOME/.astrotweet.json``; the format is::
 
     {
