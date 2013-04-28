@@ -83,10 +83,10 @@ def _lookup_user_batch(t, usrBatch):
                 time.sleep(waitPeriod)
                 waitPeriod *= 1.5
                 continue
-            elif t.account.rate_limit_status()['remaining_hits'] == 0:
-                status = t.account.rate_limit_status()
+            elif t.application.rate_limit_status()['resources']['users']['/users/lookup/']['remaining'] == 0:
+                status = t.application.rate_limit_status()['resources']['users']['/users/lookup/']['remaining']
                 now = time.time() # UTC
-                whenRateLimitResets = status['reset_time_in_seconds'] # UTC
+                whenRateLimitResets = status['reset'] # UTC
                 sleepTime = whenRateLimitResets - now
                 print 'Rate limit reached. Trying again in %i seconds' % (sleepTime, )
                 time.sleep(sleepTime)
@@ -115,4 +115,8 @@ def chunks(l, n):
 if __name__ == '__main__':
     # creds = read_credentials()
     # print creds
-    print connect()
+    t = connect()
+    print lookup_users(['jonathansick','angryastropanda'])
+    status = t.application.rate_limit_status()
+    print json.dumps(status, sort_keys=True, indent=1)
+    print status['resources']['users']['/users/lookup']
