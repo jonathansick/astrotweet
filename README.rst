@@ -48,6 +48,7 @@ Here are the commands currently included in ``astrotweet``:
 
 - ``astrotweet summary`` - will output a summary table (tab-separated) of astrotweeters to the file ``astrotweeters.csv``. Columns include 'real' name, follower counts, etc..
 - ``astrotweet build`` - will build a MongoDB collection of user data (see schema below).
+
   - Add in the ``--followers`` and ``--friends`` flags to also grab friend and follower lists. Note that this will take a while because of Twitter's rate limits.
   - The ``--cliques`` flag creates a MongoDB collection of mutual-follower cliques using ``networkx``; useful if follower and friend data has been grabbed.
 
