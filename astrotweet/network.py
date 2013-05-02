@@ -32,11 +32,30 @@ def construct_graph(c):
     return g
 
 
+def build_clique_collection(graph, cliqueDB):
+    """Find cliques (groups of mutual followers). Each clique is stored in the
+    MongoDB collection cliqueDB. Calling this function wipes out all existing
+    cliques in the cliqueDB!
+
+    Finding cliques in a network was inspired by Example 4-11 of *Mining the
+    Social Web* by M. A. Russell.
+    """
+    # Delete existing cliques
+    cliqueDB.remove({}, multi=True)
+    # Find and save new cliques
+    for clique in nx.find_cliques(graph):
+        doc = {"members": clique,
+               "size": len(clique)}
+        cliqueDB.insert(doc)
+
+
 def main():
     import pymongo
     conn = pymongo.MongoClient('localhost', 27017)
     c = conn['astrotweet']['users']
-    construct_graph(c)
+    cliqueDB = conn['astrotweet']['cliques']
+    graph = construct_graph(c)
+    build_clique_collection(graph, cliqueDB)
 
 
 if __name__ == '__main__':
