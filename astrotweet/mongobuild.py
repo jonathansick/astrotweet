@@ -15,6 +15,7 @@ from cliff.command import Command
 from wikireader import get_handles
 from twitter_utils import lookup_users, str_to_datetime, get_friends_ids, \
         get_follower_ids
+import network
 
 
 class MongoBuilder(Command):
@@ -33,17 +34,24 @@ class MongoBuilder(Command):
         parser.add_argument(
             "--cname", action='store', default='users')
         parser.add_argument(
+            "--clique-cname", action='store', default='cliques',
+            dest='clique_cname')
+        parser.add_argument(
             "--followers", action='store_true', default=False,
             help="Add follower_ids field for each user.")
         parser.add_argument(
             "--friends", action='store_true', default=False,
             help='Add friend_ids field for each user.')
+        parser.add_argument(
+            "--cliques", action='store_true', default=False,
+            help='Compute/persist cliques in follower network.')
         return parser
 
     def take_action(self, parsedArgs):
         """Run the mongo builder pipeline."""
-        conn = MongoClient(parsedArgs.host, parsedArgs.port)
-        self.c = conn[parsedArgs.dbname][parsedArgs.cname]
+        con = MongoClient(parsedArgs.host, parsedArgs.port)
+        self.c = con[parsedArgs.dbname][parsedArgs.cname]
+        self.cliqueCollection = con[parsedArgs.dbname][parsedArgs.clique_cname]
         newHandles = self._get_new_handles()
         if len(newHandles) == 0:
             self.log.info("No new users to add")
@@ -58,6 +66,8 @@ class MongoBuilder(Command):
             self._add_followers()
         if parsedArgs.friends:
             self._add_friends()
+        if parsedArgs.cliques:
+            self._compute_cliques()
 
     def _get_new_handles(self):
         """Get user handles from the AstroBetter wiki that are not yet in
@@ -114,3 +124,15 @@ class MongoBuilder(Command):
             doc = {"$set": {"friend_ids": followerIDs}}
             self.c.update({"screen_name": screenName}, doc)
             self.log.info("Inserting friend_ids for %s" % screenName)
+
+    def _compute_cliques(self):
+        """Compute cliques in the mutual follower networks, using `networkx`.
+        
+        The cliques are persisted, one per document, into a `cliques` MongoDB
+        collection, specified by the user with the `--clique-name`.
+        """
+        self.log.info("Building networkx graph")
+        graph = network.construct_graph(self.c)
+        self.log.info("Computing cliques with networkx")
+        network.build_clique_collection(graph, self.cliqueCollection)
+        self.log.info("Finished computing cliques")

@@ -14,7 +14,7 @@ Installation
 
 Download the code and run ``setup.py install``.
 
-You'll need the following third-party packages: ``Cliff``, ``requests``, ``twitter``, ``pymongo``.
+You'll need the following third-party packages: ``Cliff``, ``requests``, ``twitter``, ``pymongo`` and ``networkx``.
 Setuptools should install these automatically.
 To check your installation run::
 
@@ -47,7 +47,9 @@ Commands
 Here are the commands currently included in ``astrotweet``:
 
 - ``astrotweet summary`` - will output a summary table (tab-separated) of astrotweeters to the file ``astrotweeters.csv``. Columns include 'real' name, follower counts, etc..
-- ``astrotweet build`` - will build a MongoDB collection of user data (see schema below). Add in the ``--followers`` and ``--friends`` flags to also grab friend and follower lists. Note that this will take a while because of Twitter's rate limits.
+- ``astrotweet build`` - will build a MongoDB collection of user data (see schema below).
+  - Add in the ``--followers`` and ``--friends`` flags to also grab friend and follower lists. Note that this will take a while because of Twitter's rate limits.
+  - The ``--cliques`` flag creates a MongoDB collection of mutual-follower cliques using ``networkx``; useful if follower and friend data has been grabbed.
 
 You can get a overview of ``astrotweet``'s commands by running ``astrotweet --help``, and using the ``astrotweet help cmd_name`` for help specific to each command (e.g., ``astrotweet help build``).
 
@@ -74,6 +76,19 @@ The schema for these documents is:
 - ``listed_count``: number of twitter lists this user appears in
 - ``friend_ids``: list of ``str_id`` of people this user is follower. Built with ``astrotweet build --friends`` flag.
 - ``follower_ids``: list of ``str_id`` of people following this user. Built with ``astrotweet build --followers`` flag.
+
+
+Schema of the clique collection in MongoDB
+------------------------------------------
+
+Every clique built with ``astrotweet build --cliques`` is stored in a ``astrotweet.cliques`` collection in a MongoDB database, alongside the user collection.
+The schema is bare bones:
+
+- ``_id``: auto-generated ObjectId
+- ``members``: list of ``str_ids`` of users in the clique
+- ``size``: number of users in the clique (i.e., length of ``members``)
+
+Note that this collection, and its documents, are erased and rebuilt every time ``astrotweet build --cliques`` is run: **do not store custom data in these documents!**
 
 
 Running MongoDB

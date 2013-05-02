@@ -41,7 +41,8 @@ setup(
     scripts=[],
 
     provides=[],
-    install_requires=['distribute', 'cliff', 'twitter', 'requests', 'pymongo'],
+    install_requires=['distribute', 'cliff', 'twitter', 'requests', 'pymongo',
+        'networkx'],
 
     namespace_packages=[],
     packages=find_packages(),
